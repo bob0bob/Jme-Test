@@ -1,9 +1,9 @@
 #import "Common/ShaderLib/GLSLCompat.glsllib"
 
 varying vec2 texCoord1;
-uniform vec2 g_Resolution;
 uniform float g_Time;
-uniform sampler2D m_DiffuseMap;
+uniform vec4 m_Color;
+uniform float m_intensity;
 
 #define time  g_Time * 5.0
 
@@ -107,7 +107,7 @@ void main()
 	if (time < 2 || col.r <= 0.1 || col.g <= 0.1 || col.b <= 0.1)
 		discard;
 	else
-		gl_FragColor = vec4(col ,1.0);
+		gl_FragColor = vec4(mix(col, m_Color.rgb, m_intensity),1.0);
 	
 }
 

@@ -3,9 +3,12 @@ package test1.control;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
+import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
@@ -119,6 +122,14 @@ public class LightingBoltControl extends AbstractControl
 		state = STATE.IDLE;
 		timer = LENGTH_OF_STRIKE;
 		playSound();
+		
+	}
+
+
+	public void changeColor()
+	{
+		Material mat = ((Geometry)spatial).getMaterial();
+		mat.setColor("Color", ColorRGBA.randomColor());
 		
 	}
 }

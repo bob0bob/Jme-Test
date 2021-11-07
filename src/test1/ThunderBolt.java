@@ -123,8 +123,9 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
         
         lightingBoltGeom = new Geometry("", quad);
         Material geomMat = new Material(assetManager,  "shaders/bolt/lightingBolt.j3md");
-        geomMat.setTexture("DiffuseMap", floorMap);
-        geomMat.setColor("Color", ColorRGBA.White);
+        geomMat.setTexture("DiffuseMap", assetManager.loadTexture("textures/blank.png"));
+        geomMat.setColor("Color", new ColorRGBA(0.0f, 1f, 1f, 1));
+        geomMat.setFloat("intensity", 0.3f);
         lightingBoltGeom.setMaterial(geomMat);
         boltControl = new LightingBoltControl(assetManager, lightingBoltNode);
         lightingBoltGeom.addControl(boltControl);
@@ -191,7 +192,8 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
 
         inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2));
-		inputManager.addListener(this, "1", "2");
+        inputManager.addMapping("3", new KeyTrigger(KeyInput.KEY_3));
+		inputManager.addListener(this, "1", "2", "3");
 
         cam.setLocation(new Vector3f(0.928f,6f,16f));
         cam.lookAtDirection(new Vector3f(19.97f, -44.999f, -190.04f), Vector3f.UNIT_Y);
@@ -222,6 +224,8 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
 				boltControl.activateLightingBolt();
 			else if (name.equals("2"))
 				boltControl.activateLightingBoltAtRandomPlace();
+			else if (name.equals("3"))
+				boltControl.changeColor();
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package test;
+package test1;
 
 import com.jme3.app.DebugKeysAppState;
 import com.jme3.app.FlyCamAppState;
@@ -6,6 +6,9 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.SpotLight;
 import com.jme3.material.Material;
@@ -17,6 +20,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
+import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.BillboardControl;
@@ -30,14 +34,19 @@ import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
+import com.landbeyond.engine.GuiGlobals;
 
-import test.control.LightingBoltControl;
+import test1.control.LightingBoltControl;
 
-public class ThunderBolt extends SimpleApplication {
+
+public class ThunderBolt extends SimpleApplication implements ActionListener
+{
 
     public ThunderBolt() {
         super(new StatsAppState(), new FlyCamAppState(), new DebugKeysAppState());
     }
+    
+    
     
     public static void main(String[] args) {
     	ThunderBolt app = new ThunderBolt();
@@ -50,9 +59,12 @@ public class ThunderBolt extends SimpleApplication {
     // Renderers or Filters?
     protected boolean useRenderers = true;
 
-    protected boolean moveTheSun = false;
+    protected boolean moveTheSun = true;
 	private AudioNode errornode;
 	private AudioNode keynode;
+	private Geometry lightingBoltGeom;
+	private LightingBoltControl boltControl;
+	private Node lightingBoltNode;
     
     @Override
     public void simpleInitApp() {
@@ -104,18 +116,24 @@ public class ThunderBolt extends SimpleApplication {
         floor.setLocalTranslation(0f, 0.2f, 0f);
         rootNode.attachChild(floor);
 
+
         
+        lightingBoltNode = new Node();
         Quad quad = new Quad(1,2);
         
-        Geometry geom = new Geometry("", quad);
+        lightingBoltGeom = new Geometry("", quad);
         Material geomMat = new Material(assetManager,  "shaders/bolt/lightingBolt.j3md");
         geomMat.setTexture("DiffuseMap", floorMap);
         geomMat.setColor("Color", ColorRGBA.White);
-        geom.setMaterial(geomMat);
-        geom.addControl(new LightingBoltControl());
-        geom.addControl(new BillboardControl());
-        geom.setCullHint(CullHint.Always);
-        rootNode.attachChild(geom);
+        lightingBoltGeom.setMaterial(geomMat);
+        boltControl = new LightingBoltControl(assetManager, lightingBoltNode);
+        lightingBoltGeom.addControl(boltControl);
+        lightingBoltGeom.addControl(new BillboardControl());
+        lightingBoltGeom.setCullHint(CullHint.Always);
+        lightingBoltNode.attachChild(lightingBoltGeom);
+        rootNode.attachChild(lightingBoltNode);
+        
+        
         
         // Create the sun.
         sun = new DirectionalLight();
@@ -170,14 +188,13 @@ public class ThunderBolt extends SimpleApplication {
             viewPort.addProcessor(fpp);
         }
         
-        
-    	errornode = new AudioNode(assetManager,"Sounds/error.ogg",AudioData.DataType.Buffer);
-    	errornode.setPositional(false);
-//    	keynode = new AudioNode(assetManager,"Sounds/keyclick.ogg",AudioData.DataType.Buffer);
-//    	keynode.setPositional(false);
 
-        cam.setLocation(new Vector3f(2f,1f,8f));
-        cam.setRotation(cam.getRotation().fromAngleAxis(FastMath.PI*7f/8f, Vector3f.UNIT_Y));
+        inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1));
+        inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2));
+		inputManager.addListener(this, "1", "2");
+
+        cam.setLocation(new Vector3f(0.928f,6f,16f));
+        cam.lookAtDirection(new Vector3f(19.97f, -44.999f, -190.04f), Vector3f.UNIT_Y);
     }
 
     protected float angle = 0;
@@ -185,12 +202,8 @@ public class ThunderBolt extends SimpleApplication {
     
     @Override
     public void simpleUpdate(float tpf) {
-    	if (keynode == null)
-    	{
-        	keynode = new AudioNode(assetManager,"Sounds/keyclick.ogg",AudioData.DataType.Buffer);
-        	keynode.setPositional(false);
-    		
-    	}
+
+    	
     	
         if (moveTheSun) {
             Matrix3f m = new Matrix3f();
@@ -199,4 +212,16 @@ public class ThunderBolt extends SimpleApplication {
             angle += FastMath.PI/1024;
         }
     }
+
+	@Override
+	public void onAction(String name, boolean isPressed, float tpf)
+	{
+		if (isPressed)
+		{
+			if (name.equals("1"))
+				boltControl.activateLightingBolt();
+			else if (name.equals("2"))
+				boltControl.activateLightingBoltAtRandomPlace();
+		}
+	}
 }

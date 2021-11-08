@@ -1,0 +1,31 @@
+MaterialDef Unshaded  {
+
+    MaterialParameters {
+        Int NumSamples
+        Texture2D Texture
+        
+		Vector2 resolution
+		Float rainAmount
+		Float rainDropAmount
+		Float lighting
+		Float flashDarkness
+		Float lightingValue
+    }
+
+    Technique {
+        VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   Common/MatDefs/Post/Post.vert
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: shaders/rain/rain.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            ViewMatrix
+            Time
+        }
+
+        Defines {
+            RESOLVE_MS : NumSamples
+        }
+    }
+
+}

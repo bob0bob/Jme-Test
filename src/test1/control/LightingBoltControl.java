@@ -12,12 +12,10 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial.CullHint;
 import com.jme3.scene.control.AbstractControl;
-import com.landbeyond.engine.GuiGlobals;
-import com.landbeyond.utils.Utils;
 
 public class LightingBoltControl extends AbstractControl
 {
-	protected final float LENGTH_OF_STRIKE = 0.3f;
+	protected float LENGTH_OF_STRIKE = 0.3f;
 	protected final float LENGTH_BETWEEN_STRIKES = 0;
 	
 	public static enum STATE
@@ -31,8 +29,9 @@ public class LightingBoltControl extends AbstractControl
 	private AudioNode lightAudio;
 	private Node node;
 	
-	public LightingBoltControl(AssetManager assetManager, Node node)
+	public LightingBoltControl(AssetManager assetManager, Node node, float time)
 	{
+		LENGTH_OF_STRIKE = time;
 		state = STATE.IDLE;
     	lightAudio = new AudioNode(assetManager,"sound/lightningShort.ogg",AudioData.DataType.Buffer);
     	lightAudio.setDirectional(true);
@@ -57,7 +56,8 @@ public class LightingBoltControl extends AbstractControl
 			{
 				if (randn(0, 255) > 220)
 				{
-					node.setLocalTranslation(new Vector3f( 10 - randn(0, 20), 0, 10 - randn(0,20)));
+					changeColor();
+					node.setLocalTranslation(new Vector3f( 8 - randn(0, 16), 0, 8 - randn(0,16)));
 					state = STATE.LIGHTING;
 					timer = LENGTH_OF_STRIKE;
 					playSound();

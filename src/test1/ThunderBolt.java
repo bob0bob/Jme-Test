@@ -6,6 +6,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.app.StatsAppState;
 import com.jme3.audio.AudioData;
 import com.jme3.audio.AudioNode;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
@@ -34,9 +35,9 @@ import com.jme3.shadow.SpotLightShadowFilter;
 import com.jme3.shadow.SpotLightShadowRenderer;
 import com.jme3.texture.Texture;
 import com.jme3.util.TangentBinormalGenerator;
-import com.landbeyond.engine.GuiGlobals;
 
 import test1.control.LightingBoltControl;
+import test1.filter.RainFilter;
 
 
 public class ThunderBolt extends SimpleApplication implements ActionListener
@@ -60,15 +61,19 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
     protected boolean useRenderers = true;
 
     protected boolean moveTheSun = true;
-	private AudioNode errornode;
-	private AudioNode keynode;
 	private Geometry lightingBoltGeom;
 	private LightingBoltControl boltControl;
 	private Node lightingBoltNode;
+	private Node lightingBoltNode2;
+	private Geometry lightingBoltGeom2;
+	private Material geomMat2;
+	private ThunderAppState thunderApp;
     
     @Override
     public void simpleInitApp() {
-        // Create the sphere.
+
+
+    	// Create the sphere.
         Sphere sphereComp = new Sphere(32, 32, 1f);
         Spatial sphere = new Geometry("Sphere", sphereComp);
         TangentBinormalGenerator.generate(sphereComp);
@@ -127,7 +132,7 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
         geomMat.setColor("Color", new ColorRGBA(0.0f, 1f, 1f, 1));
         geomMat.setFloat("intensity", 0.3f);
         lightingBoltGeom.setMaterial(geomMat);
-        boltControl = new LightingBoltControl(assetManager, lightingBoltNode);
+        boltControl = new LightingBoltControl(assetManager, lightingBoltNode, 0.4f);
         lightingBoltGeom.addControl(boltControl);
         lightingBoltGeom.addControl(new BillboardControl());
         lightingBoltGeom.setCullHint(CullHint.Always);
@@ -135,7 +140,25 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
         rootNode.attachChild(lightingBoltNode);
         
         
+
+
         
+        lightingBoltNode2 = new Node();
+        quad = new Quad(1,4);
+        
+        lightingBoltGeom2 = new Geometry("", quad);
+        geomMat2 = new Material(assetManager,  "shaders/bolt/lightingBolt2.j3md");
+        geomMat2.setTexture("DiffuseMap", assetManager.loadTexture("textures/blank.png"));
+        geomMat2.setColor("Color", new ColorRGBA(0.0f, 1f, 1f, 1));
+        geomMat2.setFloat("intensity", 0.3f);
+        lightingBoltGeom2.setMaterial(geomMat2);
+        boltControl = new LightingBoltControl(assetManager, lightingBoltNode, 3f);
+        lightingBoltGeom2.addControl(boltControl);
+        lightingBoltGeom2.addControl(new BillboardControl());
+        lightingBoltGeom2.setCullHint(CullHint.Always);
+        lightingBoltNode.attachChild(lightingBoltGeom2);
+        rootNode.attachChild(lightingBoltNode);
+
         // Create the sun.
         sun = new DirectionalLight();
         sun.setDirection(new Vector3f(-1,-1,-1).normalizeLocal());
@@ -189,14 +212,32 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
             viewPort.addProcessor(fpp);
         }
         
+        viewPort.setBackgroundColor(ColorRGBA.randomColor());
 
         inputManager.addMapping("1", new KeyTrigger(KeyInput.KEY_1));
         inputManager.addMapping("2", new KeyTrigger(KeyInput.KEY_2));
         inputManager.addMapping("3", new KeyTrigger(KeyInput.KEY_3));
-		inputManager.addListener(this, "1", "2", "3");
+
+        inputManager.addMapping("Y", new KeyTrigger(KeyInput.KEY_Y));
+        inputManager.addMapping("H", new KeyTrigger(KeyInput.KEY_H));
+        inputManager.addMapping("U", new KeyTrigger(KeyInput.KEY_U));
+        inputManager.addMapping("J", new KeyTrigger(KeyInput.KEY_J));
+        inputManager.addMapping("L", new KeyTrigger(KeyInput.KEY_L));
+        inputManager.addMapping("O", new KeyTrigger(KeyInput.KEY_O));
+
+
+		thunderApp = new ThunderAppState(cam.getWidth(), cam.getHeight(), guiFont, guiNode);
+		stateManager.attach(thunderApp);
+
+        
+
+        inputManager.addListener(this, "1", "2", "3", "Y", "H", "U", "J", "L", "O");
 
         cam.setLocation(new Vector3f(0.928f,6f,16f));
         cam.lookAtDirection(new Vector3f(19.97f, -44.999f, -190.04f), Vector3f.UNIT_Y);
+        
+
+		
     }
 
     protected float angle = 0;
@@ -206,6 +247,7 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
     public void simpleUpdate(float tpf) {
 
     	
+
     	
         if (moveTheSun) {
             Matrix3f m = new Matrix3f();
@@ -226,6 +268,29 @@ public class ThunderBolt extends SimpleApplication implements ActionListener
 				boltControl.activateLightingBoltAtRandomPlace();
 			else if (name.equals("3"))
 				boltControl.changeColor();
+			else if (name.equals("L"))
+			{
+				thunderApp.activeThunder();
+			}
+			else if (name.equals("Y"))
+			{
+				thunderApp.getRainFilter().setRainAmount(thunderApp.getRainFilter().getRainAmount() + 0.1f);
+			} 
+			else if (name.equals("H"))
+			{
+				thunderApp.getRainFilter().setRainAmount(thunderApp.getRainFilter().getRainAmount() - 0.1f);
+			}
+			else if (name.equals("U"))
+			{
+				thunderApp.getRainFilter().setRainDropAmount(thunderApp.getRainFilter().getRainDropAmount() + 0.1f);
+			}
+			else if (name.equals("J"))
+			{
+				thunderApp.getRainFilter().setRainDropAmount(thunderApp.getRainFilter().getRainDropAmount() - 0.1f);
+			}
+			else if (name.equals("O"))
+				thunderApp.setEnabled( !thunderApp.isEnabled());
 		}
 	}
+
 }

@@ -14,14 +14,14 @@ MaterialDef Custom_Unshaded {
         // Alpha threshold for fragment discarding
         Float AlphaDiscardThreshold (AlphaTestFallOff)
 
-
 		Float intensity   
+
     
     }
 
     Technique {
         VertexShader GLSL310 GLSL300 GLSL100 GLSL150:   shaders/bolt/lightingBolt.vert
-        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: shaders/bolt/lightingBolt.frag
+        FragmentShader GLSL310 GLSL300 GLSL100 GLSL150: shaders/bolt/lightingBolt2.frag
 
         WorldParameters {
         	Time
